@@ -1,0 +1,323 @@
+# Cobra Go CLI Library Documentation
+
+## github.com/spf13/cobra
+
+Package cobra is a commander providing a simple interface to create
+powerful modern CLI interfaces. In addition to providing an interface, Cobra
+simultaneously provides a controller to organize your application code.
+
+### Constants
+
+```go
+const (
+	BashCompFilenameExt     = "cobra_annotation_bash_completion_filename_extensions"
+	BashCompCustom          = "cobra_annotation_bash_completion_custom"
+	BashCompOneRequiredFlag = "cobra_annotation_bash_completion_one_required_flag"
+	BashCompSubdirsInDir    = "cobra_annotation_bash_completion_subdirs_in_dir"
+)
+const (
+	FlagSetByCobraAnnotation     = "cobra_annotation_flag_set_by_cobra"
+	CommandDisplayNameAnnotation = "cobra_annotation_command_display_name"
+)
+const (
+	// ShellCompRequestCmd is the name of the hidden command that is used to request
+	// completion results from the program.  It is used by the shell completion scripts.
+	ShellCompRequestCmd = "__complete"
+	// ShellCompNoDescRequestCmd is the name of the hidden command that is used to request
+	// completion results without their description.  It is used by the shell completion scripts.
+	ShellCompNoDescRequestCmd = "__completeNoDesc"
+)
+const (
+	// ShellCompDirectiveError indicates an error occurred and completions should be ignored.
+	ShellCompDirectiveError ShellCompDirective = 1 << iota
+
+	// ShellCompDirectiveNoSpace indicates that the shell should not add a space
+	// after the completion even if there is a single completion provided.
+	ShellCompDirectiveNoSpace
+
+	// ShellCompDirectiveNoFileComp indicates that the shell should not provide
+	// file completion even when no completion is provided.
+	ShellCompDirectiveNoFileComp
+
+	// ShellCompDirectiveFilterFileExt indicates that the provided completions
+	// should be used as file extension filters.
+	// For flags, using Command.MarkFlagFilename() and Command.MarkPersistentFlagFilename()
+	// is a shortcut to using this directive explicitly.  The BashCompFilenameExt
+	// annotation can also be used to obtain the same behavior for flags.
+	ShellCompDirectiveFilterFileExt
+
+	// ShellCompDirectiveFilterDirs indicates that only directory names should
+	// be provided in file completion.  To request directory names within another
+	// directory, the returned completions should specify the directory within
+	// which to search.  The BashCompSubdirsInDir annotation can be used to
+	// obtain the same behavior but only for flags.
+	ShellCompDirectiveFilterDirs
+
+	// ShellCompDirectiveKeepOrder indicates that the shell should preserve the order
+	// in which the completions are provided
+	ShellCompDirectiveKeepOrder
+
+	// ShellCompDirectiveDefault indicates to let the shell perform its default
+	// behavior after completions have been provided.
+	// This one must be last to avoid messing up the iota count.
+	ShellCompDirectiveDefault ShellCompDirective = 0
+)
+```
+
+### Variables
+
+```go
+var EnableCaseInsensitive = defaultCaseInsensitive
+var EnableCommandSorting = defaultCommandSorting
+var EnablePrefixMatching = defaultPrefixMatching
+var EnableTraverseRunHooks = defaultTraverseRunHooks
+var MousetrapDisplayDuration = 5 * time.Second
+var MousetrapHelpText = `This is a command line tool.
+
+You need to open cmd.exe and run it from there.
+`
+```
+
+### Functions
+
+```go
+func AddTemplateFunc(name string, tmplFunc interface{})
+func AddTemplateFuncs(tmplFuncs template.FuncMap)
+func AppendActiveHelp(compArray []Completion, activeHelpStr string) []Completion
+func ArbitraryArgs(cmd *Command, args []string) error
+func CheckErr(msg interface{})
+func CompDebug(msg string, printToStdErr bool)
+func CompDebugln(msg string, printToStdErr bool)
+func CompError(msg string)
+func CompErrorln(msg string)
+func CompletionWithDesc(choice string, description string) Completion
+func Eq(a interface{}, b interface{}) bool
+func ExactArgs(n int) PositionalArgs
+func ExactValidArgs(n int) PositionalArgs
+func FixedCompletions(choices []Completion, directive ShellCompDirective) CompletionFunc
+func GetActiveHelpConfig(cmd *Command) string
+func Gt(a interface{}, b interface{}) bool
+func MarkFlagCustom(flags *pflag.FlagSet, name string, f string) error
+func MarkFlagDirname(flags *pflag.FlagSet, name string) error
+func MarkFlagFilename(flags *pflag.FlagSet, name string, extensions ...string) error
+func MarkFlagRequired(flags *pflag.FlagSet, name string) error
+func MatchAll(pargs ...PositionalArgs) PositionalArgs
+func MaximumNArgs(n int) PositionalArgs
+func MinimumNArgs(n int) PositionalArgs
+func NoArgs(cmd *Command, args []string) error
+func NoDuplicateArgs(cmd *Command, args []string) error
+func NoFileCompletions(cmd *Command, args []string, toComplete string) ([]Completion, ShellCompDirective)
+func OnFinalize(y ...func())
+func OnInitialize(y ...func())
+func OnlyValidArgs(cmd *Command, args []string) error
+func RangeArgs(min int, max int) PositionalArgs
+func WriteStringAndCheck(b io.StringWriter, s string)
+```
+
+### Types
+
+```go
+type Command struct {
+	// Use is the one-line usage message.
+	// Recommended syntax is as follows:
+	//   [ ] identifies an optional argument. Arguments that are not enclosed in brackets are required.
+	//   ... indicates that you can specify multiple values for the previous argument.
+	//   |   indicates mutually exclusive information. You can use the argument to the left of the separator or the
+	//       argument to the right of the separator. You cannot use both arguments in a single use of the command.
+	//   { } delimits a set of mutually exclusive arguments when one of the arguments is required. If the arguments are
+	//       optional, they are enclosed in brackets ([ ]).
+	// Example: add [-F file | -D dir]... [-f format] profile
+	Use string
+
+	// Aliases is an array of aliases that can be used instead of the first word in Use.
+	Aliases []string
+
+	// SuggestFor is an array of command names for which this command will be suggested -
+	// similar to aliases but only suggests.
+	SuggestFor []string
+
+	// Short is the short description shown in the 'help' output.
+	Short string
+
+	// The group id under which this subcommand is grouped in the 'help' output of its parent.
+	GroupID string
+
+	// Long is the long message shown in the 'help <this-command>' output.
+	Long string
+
+	// Example is examples of how to use the command.
+	Example string
+
+	// ValidArgs is list of all valid non-flag arguments that are accepted in shell completions
+	ValidArgs []Completion
+	// ValidArgsFunction is an optional function that provides valid non-flag arguments for shell completion.
+	// It is a dynamic version of using ValidArgs.
+	// Only one of ValidArgs and ValidArgsFunction can be used for a command.
+	ValidArgsFunction CompletionFunc
+
+	// Expected arguments
+	Args PositionalArgs
+
+	// ArgAliases is List of aliases for ValidArgs.
+	// These are not suggested to the user in the shell completion,
+	// but accepted if entered manually.
+	ArgAliases []string
+
+	// BashCompletionFunction is custom bash functions used by the legacy bash autocompletion generator.
+	// For portability with other shells, it is recommended to instead use ValidArgsFunction
+	BashCompletionFunction string
+
+	// Deprecated defines, if this command is deprecated and should print this string when used.
+	Deprecated string
+
+	// Annotations are key/value pairs that can be used by applications to identify or
+	// group commands or set special options.
+	Annotations map[string]string
+
+	// Version defines the version for this command. If this value is non-empty and the command does not
+	// define a "version" flag, a "version" boolean flag will be added to the command and, if specified,
+	// will print content of the "Version" variable. A shorthand "v" flag will also be added if the
+	// command does not define one.
+	Version string
+
+	// The *Run functions are executed in the following order:
+	//   * PersistentPreRun()
+	//   * PreRun()
+	//   * Run()
+	//   * PostRun()
+	//   * PersistentPostRun()
+	// All functions get the same args, the arguments after the command name.
+	// The *PreRun and *PostRun functions will only be executed if the Run function of the current
+	// command has been declared.
+	//
+	// PersistentPreRun: children of this command will inherit and execute.
+	PersistentPreRun func(cmd *Command, args []string)
+	// PersistentPreRunE: PersistentPreRun but returns an error.
+	PersistentPreRunE func(cmd *Command, args []string) error
+	// PreRun: children of this command will not inherit.
+	PreRun func(cmd *Command, args []string)
+	// PreRunE: PreRun but returns an error.
+	PreRunE func(cmd *Command, args []string) error
+	// Run: Typically the actual work function. Most commands will only implement this.
+	Run func(cmd *Command, args []string)
+	// RunE: Run but returns an error.
+	RunE func(cmd *Command, args []string) error
+	// PostRun: run after the Run command.
+	PostRun func(cmd *Command, args []string)
+	// PostRunE: PostRun but returns an error.
+	PostRunE func(cmd *Command, args []string) error
+	// PersistentPostRun: children of this command will inherit and execute after PostRun.
+	PersistentPostRun func(cmd *Command, args []string)
+	// PersistentPostRunE: PersistentPostRun but returns an error.
+	PersistentPostRunE func(cmd *Command, args []string) error
+
+	// FParseErrWhitelist flag parse errors to be ignored
+	FParseErrWhitelist FParseErrWhitelist
+
+	// CompletionOptions is a set of options to control the handling of shell completion
+	CompletionOptions CompletionOptions
+
+	// TraverseChildren parses flags on all parents before executing child command.
+	TraverseChildren bool
+
+	// Hidden defines, if this command is hidden and should NOT show up in the list of available commands.
+	Hidden bool
+
+	// SilenceErrors is an option to quiet errors down stream.
+	SilenceErrors bool
+
+	// SilenceUsage is an option to silence usage when an error occurs.
+	SilenceUsage bool
+
+	// DisableFlagParsing disables the flag parsing.
+	// If this is true all flags will be passed to the command as arguments.
+	DisableFlagParsing bool
+
+	// DisableAutoGenTag defines, if gen tag ("Auto generated by spf13/cobra...")
+	// will be printed by generating docs for this command.
+	DisableAutoGenTag bool
+
+	// DisableFlagsInUseLine will disable the addition of [flags] to the usage
+	// line of a command when printing help or generating docs
+	DisableFlagsInUseLine bool
+
+	// DisableSuggestions disables the suggestions based on Levenshtein distance
+	// that go along with 'unknown command' messages.
+	DisableSuggestions bool
+
+	// SuggestionsMinimumDistance defines minimum levenshtein distance to display suggestions.
+	// Must be > 0.
+	SuggestionsMinimumDistance int
+	// contains filtered or unexported fields
+}
+type Completion = string
+type CompletionFunc = func(cmd *Command, args []string, toComplete string) ([]Completion, ShellCompDirective)
+type CompletionOptions struct {
+	// DisableDefaultCmd prevents Cobra from creating a default 'completion' command
+	DisableDefaultCmd bool
+	// DisableNoDescFlag prevents Cobra from creating the '--no-descriptions' flag
+	// for shells that support completion descriptions
+	DisableNoDescFlag bool
+	// DisableDescriptions turns off all completion descriptions for shells
+	// that support them
+	DisableDescriptions bool
+	// HiddenDefaultCmd makes the default 'completion' command hidden
+	HiddenDefaultCmd bool
+	// DefaultShellCompDirective sets the ShellCompDirective that is returned
+	// if no special directive can be determined
+	DefaultShellCompDirective *ShellCompDirective
+}
+type FParseErrWhitelist flag.ParseErrorsAllowlist
+type Group struct {
+	ID    string
+	Title string
+}
+type PositionalArgs func(cmd *Command, args []string) error
+type ShellCompDirective int
+type SliceValue interface {
+	// GetSlice returns the flag value list as an array of strings.
+	GetSlice() []string
+}
+```
+
+## github.com/spf13/cobra/doc
+
+### Functions
+
+```go
+func GenMan(cmd *cobra.Command, header *GenManHeader, w io.Writer) error
+func GenManTree(cmd *cobra.Command, header *GenManHeader, dir string) error
+func GenManTreeFromOpts(cmd *cobra.Command, opts GenManTreeOptions) error
+func GenMarkdown(cmd *cobra.Command, w io.Writer) error
+func GenMarkdownCustom(cmd *cobra.Command, w io.Writer, linkHandler func(string) string) error
+func GenMarkdownTree(cmd *cobra.Command, dir string) error
+func GenMarkdownTreeCustom(cmd *cobra.Command, dir string, filePrepender, linkHandler func(string) string) error
+func GenReST(cmd *cobra.Command, w io.Writer) error
+func GenReSTCustom(cmd *cobra.Command, w io.Writer, linkHandler func(string, string) string) error
+func GenReSTTree(cmd *cobra.Command, dir string) error
+func GenReSTTreeCustom(cmd *cobra.Command, dir string, filePrepender func(string) string, linkHandler func(string, string) string) error
+func GenYaml(cmd *cobra.Command, w io.Writer) error
+func GenYamlCustom(cmd *cobra.Command, w io.Writer, linkHandler func(string) string) error
+func GenYamlTree(cmd *cobra.Command, dir string) error
+func GenYamlTreeCustom(cmd *cobra.Command, dir string, filePrepender, linkHandler func(string) string) error
+```
+
+### Types
+
+```go
+type GenManHeader struct {
+	Title   string
+	Section string
+	Date    *time.Time
+
+	Source string
+	Manual string
+	// contains filtered or unexported fields
+}
+type GenManTreeOptions struct {
+	Header           *GenManHeader
+	Path             string
+	CommandSeparator string
+}
+```
+

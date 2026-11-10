@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>doc</title>
+<link rel="stylesheet" href="sourcey-godoc.css">
+</head>
+<body><div class="shell">
+<aside><p class="brand">sourcey-godoc</p><p class="module"><code>github.com/spf13/cobra</code></p><ul class="nav"><li><a href="index.html">Overview</a></li><li><a href="package-root.html">github.com/spf13/cobra</a></li><li><a href="pkg-doc.html">doc</a></li></ul></aside>
+<main><h1>doc</h1><p class="import-path"><code>import "github.com/spf13/cobra/doc"</code></p><h2 id="functions">Functions</h2><section id="func-GenMan"><h3>func GenMan(cmd *cobra.Command, header *GenManHeader, w io.Writer) error</h3><div class="doc"><p>GenMan will generate a man page for the given command and write it to
+w. The header argument may be nil, however obviously w may not.
+</div><details><summary>Example</summary><pre><code>{
+	cmd := &amp;cobra.Command{
+		Use:   &#34;test&#34;,
+		Short: &#34;my test program&#34;,
+	}
+	header := &amp;doc.GenManHeader{
+		Title:   &#34;MINE&#34;,
+		Section: &#34;3&#34;,
+	}
+	out := new(bytes.Buffer)
+	cobra.CheckErr(doc.GenMan(cmd, header, out))
+	fmt.Print(out.String())
+}</code></pre></details></section><section id="func-GenManTree"><h3>func GenManTree(cmd *cobra.Command, header *GenManHeader, dir string) error</h3><div class="doc"><p>GenManTree will generate a man page for this command and all descendants
+in the directory given. The header may be nil. This function may not work
+correctly if your command names have `-` in them. If you have `cmd` with two
+subcmds, `sub` and `sub-third`, and `sub` has a subcommand called `third`
+it is undefined which help output will be in the file `cmd-sub-third.1`.
+</div><details><summary>Example</summary><pre><code>{
+	cmd := &amp;cobra.Command{
+		Use:   &#34;test&#34;,
+		Short: &#34;my test program&#34;,
+	}
+	header := &amp;doc.GenManHeader{
+		Title:   &#34;MINE&#34;,
+		Section: &#34;3&#34;,
+	}
+	cobra.CheckErr(doc.GenManTree(cmd, header, &#34;/tmp&#34;))
+}</code></pre></details></section><section id="func-GenManTreeFromOpts"><h3>func GenManTreeFromOpts(cmd *cobra.Command, opts GenManTreeOptions) error</h3><div class="doc"><p>GenManTreeFromOpts generates a man page for the command and all descendants.
+The pages are written to the opts.Path directory.
+</div></section><section id="func-GenMarkdown"><h3>func GenMarkdown(cmd *cobra.Command, w io.Writer) error</h3><div class="doc"><p>GenMarkdown creates markdown output.
+</div></section><section id="func-GenMarkdownCustom"><h3>func GenMarkdownCustom(cmd *cobra.Command, w io.Writer, linkHandler func(string) string) error</h3><div class="doc"><p>GenMarkdownCustom creates custom markdown output.
+</div></section><section id="func-GenMarkdownTree"><h3>func GenMarkdownTree(cmd *cobra.Command, dir string) error</h3><div class="doc"><p>GenMarkdownTree will generate a markdown page for this command and all
+descendants in the directory given. The header may be nil.
+This function may not work correctly if your command names have `-` in them.
+If you have `cmd` with two subcmds, `sub` and `sub-third`,
+and `sub` has a subcommand called `third`, it is undefined which
+help output will be in the file `cmd-sub-third.1`.
+</div></section><section id="func-GenMarkdownTreeCustom"><h3>func GenMarkdownTreeCustom(cmd *cobra.Command, dir string, filePrepender, linkHandler func(string) string) error</h3><div class="doc"><p>GenMarkdownTreeCustom is the same as GenMarkdownTree, but
+with custom filePrepender and linkHandler.
+</div></section><section id="func-GenReST"><h3>func GenReST(cmd *cobra.Command, w io.Writer) error</h3><div class="doc"><p>GenReST creates reStructured Text output.
+</div></section><section id="func-GenReSTCustom"><h3>func GenReSTCustom(cmd *cobra.Command, w io.Writer, linkHandler func(string, string) string) error</h3><div class="doc"><p>GenReSTCustom creates custom reStructured Text output.
+</div></section><section id="func-GenReSTTree"><h3>func GenReSTTree(cmd *cobra.Command, dir string) error</h3><div class="doc"><p>GenReSTTree will generate a ReST page for this command and all
+descendants in the directory given.
+This function may not work correctly if your command names have `-` in them.
+If you have `cmd` with two subcmds, `sub` and `sub-third`,
+and `sub` has a subcommand called `third`, it is undefined which
+help output will be in the file `cmd-sub-third.1`.
+</div></section><section id="func-GenReSTTreeCustom"><h3>func GenReSTTreeCustom(cmd *cobra.Command, dir string, filePrepender func(string) string, linkHandler func(string, string) string) error</h3><div class="doc"><p>GenReSTTreeCustom is the same as GenReSTTree, but
+with custom filePrepender and linkHandler.
+</div></section><section id="func-GenYaml"><h3>func GenYaml(cmd *cobra.Command, w io.Writer) error</h3><div class="doc"><p>GenYaml creates yaml output.
+</div></section><section id="func-GenYamlCustom"><h3>func GenYamlCustom(cmd *cobra.Command, w io.Writer, linkHandler func(string) string) error</h3><div class="doc"><p>GenYamlCustom creates custom yaml output.
+</div></section><section id="func-GenYamlTree"><h3>func GenYamlTree(cmd *cobra.Command, dir string) error</h3><div class="doc"><p>GenYamlTree creates yaml structured ref files for this command and all descendants
+in the directory given. This function may not work
+correctly if your command names have `-` in them. If you have `cmd` with two
+subcmds, `sub` and `sub-third`, and `sub` has a subcommand called `third`
+it is undefined which help output will be in the file `cmd-sub-third.1`.
+</div></section><section id="func-GenYamlTreeCustom"><h3>func GenYamlTreeCustom(cmd *cobra.Command, dir string, filePrepender, linkHandler func(string) string) error</h3><div class="doc"><p>GenYamlTreeCustom creates yaml structured ref files.
+</div></section><h2 id="types">Types</h2><section id="type-GenManHeader"><h3>type GenManHeader</h3><div class="doc"><p>GenManHeader is a lot like the .TH header at the start of man pages. These
+include the title, section, date, source, and manual. We will use the
+current time if Date is unset and will use &quot;Auto generated by spf13/cobra&quot;
+if the Source is unset.
+</div><pre><code>type GenManHeader struct {
+	Title   string
+	Section string
+	Date    *time.Time
+
+	Source string
+	Manual string
+	// contains filtered or unexported fields
+}</code></pre><h4>Fields</h4><ul class="field-list"><li><code>Title string</code></li><li><code>Section string</code></li><li><code>Date *time.Time</code></li><li><code>Source string</code></li><li><code>Manual string</code></li></ul></section><section id="type-GenManTreeOptions"><h3>type GenManTreeOptions</h3><div class="doc"><p>GenManTreeOptions is the options for generating the man pages.
+Used only in GenManTreeFromOpts.
+</div><pre><code>type GenManTreeOptions struct {
+	Header           *GenManHeader
+	Path             string
+	CommandSeparator string
+}</code></pre><h4>Fields</h4><ul class="field-list"><li><code>Header *GenManHeader</code></li><li><code>Path string</code></li><li><code>CommandSeparator string</code></li></ul></section></main>
+</div></body>
+</html>
